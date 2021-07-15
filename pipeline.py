@@ -6,6 +6,7 @@ from pytube import YouTube
 from pytube.exceptions import VideoUnavailable
 from tqdm import tqdm
 
+
 from multiprocessing import Process
 
 import pytesseract
@@ -19,6 +20,14 @@ except ImportError:
 	import Image
 
 import cv2
+
+import torch
+from torch import nn
+from torch import optim
+import torch.nn.functional as F
+from torchvision import datasets, transforms, models
+
+from workspace_utils import active_session
 
 import urllib.request
 import re
@@ -58,8 +67,6 @@ class Pipeline:
 
 		print(f'{len(self.data_dict)} youtube links loaded')
 
-		k = 0
-		popular_words = [['beginning', 0], ['end', 0]]
 
 	def create_dataset_directories(self):
 
@@ -301,41 +308,3 @@ class Pipeline:
 			# Extracting text from video
 			p = Process(target=self.get_extracted_text, args=(self.data_dict[link]['video_path'], self.data_dict[link]['video_title'], link))
 			p.start()
-
-
-	def sort_to_topic(self, caption_path):
-
-		k = popular_words.index
-		biology_path = join(self.dataset_path, 'categories/biology.txt')
-		astronomy_path = join(self.dataset_path, 'categories/astronomy.txt')
-		geology_path = join(self.dataset_path, 'categories/geology.txt')
-		math_path = join(self.dataset_path, 'categories/math.txt')
-		english_path = join(self.dataset_path, 'categories/english.txt')
-
-		with open(caption_path, "r") as data:
-			line = data.read()
-			dictionary = {}
-			for word in line.split():
-				if word in dictionary:
-					dictionary[word] = dictionary[word]+1
-					dictionary[word] += 1
-
-				else:
-					dictionary[word] = dictionary[word] = 1
-
-				if len(word) >= 6 and dictionary[word] > 2:
-
-					i = 0
-					j = 0
-					m = 0
-
-					for i in range(0, k):
-						if self.popular_words[i][j] == word:
-							self.popular_words[i] = [word, dictionary[word]]
-							m = 1
-
-					if m == 0:
-						self.popular_words.insert(1, [word, dictionary[word]])
-						k = k + 1
-
-		print(self.popular_words)
